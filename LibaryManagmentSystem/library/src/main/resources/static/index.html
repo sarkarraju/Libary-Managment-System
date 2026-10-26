@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Library Management</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #f5f7fb;
+        color: #212529;
+      }
+      .app-header {
+        background: #243b53;
+        color: #fff;
+      }
+      .card {
+        border: 0;
+        box-shadow: 0 2px 12px rgba(20, 35, 55, 0.07);
+      }
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+      }
+      .nav-link {
+        cursor: pointer;
+      }
+      .nav-link.active {
+        background: #e7eef7;
+        color: #17365d !important;
+        font-weight: 600;
+      }
+      .table thead th {
+        white-space: nowrap;
+      }
+      .status {
+        text-transform: capitalize;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="app-header py-3">
+      <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+        <h1 class="h4 mb-0">Library Management</h1>
+        <span class="small">Books · Members · Issues</span>
+      </div>
+    </header>
+
+    <div class="container-fluid px-3 px-md-4 py-4">
+      <div class="row g-4">
+        <aside class="col-12 col-md-3 col-lg-2">
+          <div class="card p-3">
+            <nav class="nav flex-md-column gap-1">
+              <a class="nav-link active" data-section="books">All Books</a>
+              <a class="nav-link" data-section="add-book">Add Book</a>
+              <a class="nav-link" data-section="members">All Members</a>
+              <a class="nav-link" data-section="add-member">Add Member</a>
+              <a class="nav-link" data-section="issues">Issue Records</a>
+              <a class="nav-link" data-section="issue-book">Issue a Book</a>
+            </nav>
+          </div>
+        </aside>
+
+        <main class="col-12 col-md-9 col-lg-10">
+          <div id="message" class="alert d-none" role="alert"></div>
+
+          <section id="books" class="section active">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h4 mb-0">All Books</h2>
+              <button class="btn btn-outline-primary btn-sm" onclick="loadBooks()">Refresh</button>
+            </div>
+            <div class="card p-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Title</th>
+                      <th>Author</th>
+                      <th>Availability</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="booksTable">
+                    <tr>
+                      <td colspan="5" class="text-muted">Loading books...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="add-book" class="section">
+            <h2 class="h4 mb-3">Add Book</h2>
+            <div class="card p-4">
+              <form id="bookForm">
+                <div class="mb-3">
+                  <label for="bookTitle" class="form-label">Title</label>
+                  <input id="bookTitle" name="title" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="bookAuthor" class="form-label">Author</label>
+                  <input id="bookAuthor" name="author" class="form-control" required />
+                </div>
+                <button class="btn btn-primary" type="submit">Save Book</button>
+                <button class="btn btn-light ms-2" type="reset">Clear</button>
+              </form>
+            </div>
+          </section>
+
+          <section id="members" class="section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h4 mb-0">All Members</h2>
+              <button class="btn btn-outline-primary btn-sm" onclick="loadMembers()">
+                Refresh
+              </button>
+            </div>
+            <div class="card p-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="membersTable">
+                    <tr>
+                      <td colspan="5" class="text-muted">Loading members...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="add-member" class="section">
+            <h2 class="h4 mb-3">Add Member</h2>
+            <div class="card p-4">
+              <form id="memberForm">
+                <div class="mb-3">
+                  <label for="memberName" class="form-label">Name</label>
+                  <input id="memberName" name="name" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="memberEmail" class="form-label">Email</label>
+                  <input id="memberEmail" name="email" type="email" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="memberPhone" class="form-label">Phone</label>
+                  <input id="memberPhone" name="phNo" type="tel" class="form-control" required />
+                </div>
+                <button class="btn btn-primary" type="submit">Save Member</button>
+                <button class="btn btn-light ms-2" type="reset">Clear</button>
+              </form>
+            </div>
+          </section>
+
+          <section id="issues" class="section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h4 mb-0">Issue Records</h2>
+              <button class="btn btn-outline-primary btn-sm" onclick="loadIssues()">Refresh</button>
+            </div>
+            <div class="card p-3">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Book</th>
+                      <th>Member</th>
+                      <th>Issue Date</th>
+                      <th>Return Date</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="issuesTable">
+                    <tr>
+                      <td colspan="7" class="text-muted">Loading issue records...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section id="issue-book" class="section">
+            <h2 class="h4 mb-3">Issue a Book</h2>
+            <div class="card p-4">
+              <form id="issueForm">
+                <div class="mb-3">
+                  <label for="issueBookId" class="form-label">Book ID</label>
+                  <input id="issueBookId" type="number" min="1" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                  <label for="issueMemberId" class="form-label">Member ID</label>
+                  <input id="issueMemberId" type="number" min="1" class="form-control" required />
+                </div>
+                <button class="btn btn-primary" type="submit">Issue Book</button>
+              </form>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      // API paths are based on the paths used by your previous HTML.
+      // Controller files were not included, so verify these mappings against your controllers.
+      const API = {
+        books: "/api/books",
+        members: "/api/members",
+        issues: "/api/issues",
+      };
+
+      const messageBox = document.getElementById("message");
+
+      function showMessage(text, type = "success") {
+        messageBox.className = `alert alert-${type}`;
+        messageBox.textContent = text;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => messageBox.classList.add("d-none"), 4500);
+      }
+
+      async function request(url, options = {}) {
+        const response = await fetch(url, {
+          ...options,
+          headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+        });
+        if (!response.ok) {
+          const body = await response.text();
+          throw new Error(body || `Request failed (${response.status})`);
+        }
+        if (response.status === 204) return null;
+        const text = await response.text();
+        return text ? JSON.parse(text) : null;
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[char],
+        );
+      }
+
+      document.querySelectorAll("[data-section]").forEach((link) => {
+        link.addEventListener("click", () => {
+          document
+            .querySelectorAll("[data-section]")
+            .forEach((item) => item.classList.remove("active"));
+          document
+            .querySelectorAll(".section")
+            .forEach((section) => section.classList.remove("active"));
+          link.classList.add("active");
+          document.getElementById(link.dataset.section).classList.add("active");
+          if (link.dataset.section === "books") loadBooks();
+          if (link.dataset.section === "members") loadMembers();
+          if (link.dataset.section === "issues") loadIssues();
+        });
+      });
+
+      async function loadBooks() {
+        const tbody = document.getElementById("booksTable");
+        try {
+          const books = await request(API.books);
+          tbody.innerHTML = (books || []).length
+            ? books
+                .map(
+                  (book) => `
+        <tr>
+          <td>${escapeHtml(book.id)}</td>
+          <td>${escapeHtml(book.title)}</td>
+          <td>${escapeHtml(book.author)}</td>
+          <td><span class="badge ${book.available ? "text-bg-success" : "text-bg-secondary"}">${book.available ? "Available" : "Not Available"}</span></td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteBook('${escapeHtml(book.id)}')">Delete</button></td>
+        </tr>`,
+                )
+                .join("")
+            : '<tr><td colspan="5" class="text-center text-muted">No books found.</td></tr>';
+        } catch (error) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="text-danger">Could not load books. Check the API endpoint.</td></tr>';
+          showMessage(error.message, "danger");
+        }
+      }
+
+      async function loadMembers() {
+        const tbody = document.getElementById("membersTable");
+        try {
+          const members = await request(API.members);
+          tbody.innerHTML = (members || []).length
+            ? members
+                .map(
+                  (member) => `
+        <tr>
+          <td>${escapeHtml(member.id)}</td>
+          <td>${escapeHtml(member.name)}</td>
+          <td>${escapeHtml(member.email)}</td>
+          <td>${escapeHtml(member.phNo)}</td>
+          <td><button class="btn btn-sm btn-outline-danger" onclick="deleteMember('${escapeHtml(member.id)}')">Delete</button></td>
+        </tr>`,
+                )
+                .join("")
+            : '<tr><td colspan="5" class="text-center text-muted">No members found.</td></tr>';
+        } catch (error) {
+          tbody.innerHTML =
+            '<tr><td colspan="5" class="text-danger">Could not load members. Check the API endpoint.</td></tr>';
+          showMessage(error.message, "danger");
+        }
+      }
+
+      async function deleteBook(bookId) {
+        if (!confirm(`Delete book ID ${bookId}? This action cannot be undone.`)) return;
+        try {
+          await request(`${API.books}/${encodeURIComponent(bookId)}`, { method: "DELETE" });
+          showMessage("Book deleted successfully.");
+          loadBooks();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      }
+
+      async function deleteMember(memberId) {
+        if (!confirm(`Delete member ID ${memberId}? This action cannot be undone.`)) return;
+        try {
+          await request(`${API.members}/${encodeURIComponent(memberId)}`, { method: "DELETE" });
+          showMessage("Member deleted successfully.");
+          loadMembers();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      }
+
+      async function loadIssues() {
+        const tbody = document.getElementById("issuesTable");
+        try {
+          const issues = await request(API.issues);
+          tbody.innerHTML = (issues || []).length
+            ? issues
+                .map((issue) => {
+                  const status = String(issue.status ?? "").toLowerCase();
+                  const isIssued = status === "issued" || status === "active";
+                  return `<tr>
+          <td>${escapeHtml(issue.id)}</td>
+          <td>${escapeHtml(issue.book?.title ?? issue.book?.id ?? "—")}</td>
+          <td>${escapeHtml(issue.member?.name ?? issue.member?.id ?? "—")}</td>
+          <td>${escapeHtml(issue.issueDate ?? "—")}</td>
+          <td>${escapeHtml(issue.returnDate ?? "—")}</td>
+          <td><span class="badge ${isIssued ? "text-bg-warning" : "text-bg-success"} status">${escapeHtml(issue.status ?? "—")}</span></td>
+          <td>${isIssued ? `<button class="btn btn-sm btn-outline-success" onclick="returnBook('${escapeHtml(issue.id)}')">Return</button>` : "—"}</td>
+        </tr>`;
+                })
+                .join("")
+            : '<tr><td colspan="7" class="text-center text-muted">No issue records found.</td></tr>';
+        } catch (error) {
+          tbody.innerHTML =
+            '<tr><td colspan="7" class="text-danger">Could not load issue records. Check the API endpoint.</td></tr>';
+          showMessage(error.message, "danger");
+        }
+      }
+
+      document.getElementById("bookForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = {
+          title: document.getElementById("bookTitle").value.trim(),
+          author: document.getElementById("bookAuthor").value.trim(),
+        };
+        try {
+          await request(API.books, { method: "POST", body: JSON.stringify(payload) });
+          event.target.reset();
+          showMessage("Book saved successfully.");
+          loadBooks();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      });
+
+      document.getElementById("memberForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const payload = {
+          name: document.getElementById("memberName").value.trim(),
+          email: document.getElementById("memberEmail").value.trim(),
+          phNo: document.getElementById("memberPhone").value.trim(),
+        };
+        try {
+          await request(API.members, { method: "POST", body: JSON.stringify(payload) });
+          event.target.reset();
+          showMessage("Member saved successfully.");
+          loadMembers();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      });
+
+      document.getElementById("issueForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const bookId = document.getElementById("issueBookId").value;
+        const memberId = document.getElementById("issueMemberId").value;
+        try {
+          await request(
+            `${API.issues}?bookId=${encodeURIComponent(bookId)}&memberId=${encodeURIComponent(memberId)}`,
+            {
+              method: "POST",
+            },
+          );
+          event.target.reset();
+          showMessage("Book issued successfully.");
+          loadIssues();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      });
+
+      async function returnBook(issueId) {
+        if (!confirm("Are you sure you want to mark this book as returned?")) return;
+        try {
+          await request(`${API.issues}/${encodeURIComponent(issueId)}/return`, { method: "PUT" });
+          showMessage("Book return recorded successfully.");
+          loadIssues();
+        } catch (error) {
+          showMessage(error.message, "danger");
+        }
+      }
+
+      loadBooks();
+    </script>
+  </body>
+</html>
